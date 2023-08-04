@@ -36,14 +36,4 @@ public static class flexEngine
         else
             throw new System.Exception(SoundID + " not found");
     }
-    public static AudioSource PlayClipAtPoint(string SoundID, Vector3 position, Action<anSourcerer> beforePlay = null)
-    {
-        if (_SoundBank.TryGetValue(SoundID, out anClipMag mag))
-        {
-            anClipObjectMag m = (anClipObjectMag)mag;
-            return m.PlayClipAtPoint(position, beforePlay);
-        }
-        else
-            throw new System.Exception(SoundID + " not found");
-    }
 }
