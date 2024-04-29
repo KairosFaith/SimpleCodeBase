@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Audio;
-public class flexEngine : MonoBehaviour
+public class EclipseAudioEngine : MonoBehaviour
 {
-    public flexEngine Instance;
+    public static EclipseAudioEngine Instance;
     private void Awake()
     {
         if (Instance == null)
@@ -15,7 +15,7 @@ public class flexEngine : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning(Instance.gameObject.name + "flexEngine Already exists");
+            Debug.LogWarning(Instance.gameObject.name + nameof(EclipseAudioEngine) + " Already exists");
             Destroy(this);
         }
     }
@@ -55,19 +55,20 @@ public class flexEngine : MonoBehaviour
         Destroy(go, clip.length);
         return source;
     }
-    public class SfxMag
+}
+[Serializable]
+public class SfxMag
+{
+    public string Tag;
+    public AudioMixerGroup Channel;
+    [Range(0, 1)]
+    public float MinRandomVolume = 1;
+    public AudioClip[] Clips;
+    public AudioClip Randomise(out float gain)
     {
-        public string Tag;
-        public AudioMixerGroup Channel;
-        [Range(0, 1)]
-        public float MinRandomVolume = 1;
-        public AudioClip[] Clips;
-        public AudioClip Randomise(out float gain)
-        {
-            int key = UnityEngine.Random.Range(0, Clips.Length);
-            AudioClip c = Clips[key];
-            gain = UnityEngine.Random.Range(MinRandomVolume, 1);
-            return c;
-        }
+        int key = UnityEngine.Random.Range(0, Clips.Length);
+        AudioClip c = Clips[key];
+        gain = UnityEngine.Random.Range(MinRandomVolume, 1);
+        return c;
     }
 }
