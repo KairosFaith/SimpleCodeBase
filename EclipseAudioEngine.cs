@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.Audio;
 public class EclipseAudioEngine : MonoBehaviour
 {
-    public static EclipseAudioEngine Instance;
+    public static EclipseAudioEngine Instance { get; private set; }
     private void Awake()
     {
         if (Instance == null)
