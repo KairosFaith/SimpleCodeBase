@@ -64,13 +64,13 @@ public class CanvasEngine : MonoBehaviour
     {
         if (_CurrentUIObjects.Contains(objectToRemove))
             _CurrentUIObjects.Remove(objectToRemove);
-        Close(objectToRemove, fadeTime, () => Destroy(objectToRemove));
+        Close(objectToRemove, fadeTime, () => Destroy(objectToRemove.gameObject));
     }
     public void CloseAllListed(float fadeTime)
     {
         CanvasGroup[] objectsToClose = _CurrentUIObjects.ToArray();
         foreach(CanvasGroup cg in objectsToClose)
-            Close(cg, fadeTime, () => Destroy(cg));
+            Close(cg, fadeTime, () => Destroy(cg.gameObject));
         _CurrentUIObjects.Clear();
     }
     public void DestroyAll()//hope you wont need to use this but here it is
@@ -97,15 +97,22 @@ public class CanvasEngine : MonoBehaviour
             targetValue = 0.0f;
             t = 1 - cg.alpha;
         }
-        for (float alpha = cg.alpha; t < 1.0f; t += Time.unscaledDeltaTime / fadeTime)
+        for (float alpha = cg.alpha; t < 1.0f; t += Time.deltaTime / fadeTime)
         {
-            cg.alpha = Mathf.Lerp(alpha, targetValue, t);
-            yield return new WaitForEndOfFrame();
+            if (cg != null)
+            {
+                cg.alpha = Mathf.Lerp(alpha, targetValue, t);
+                yield return new WaitForEndOfFrame();
+            }
+            else
+                break;
         }
         ondone?.Invoke();
     }
 }
 public enum UIKey
 {
-
+    StartMenu,
+    Instructions,
+    Timer,
 }
