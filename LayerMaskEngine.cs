@@ -1,7 +1,7 @@
 using UnityEngine;
 public static class LayerMaskEngine
 {
-    public static bool MatchLayerMask(GameObject gameObject, params string[] layerNames)
+    public static bool MatchLayerMask(this GameObject gameObject, params string[] layerNames)
     {
         return MatchLayerMask(gameObject.layer, layerNames);
     }
