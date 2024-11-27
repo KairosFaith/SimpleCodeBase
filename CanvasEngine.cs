@@ -7,8 +7,8 @@ public class CanvasEngine : MonoBehaviour
 {
     const string ResourcePath = "ui";
     public static CanvasEngine Instance { get; private set; }
-    public List<CanvasGroup> _CurrentUIObjects = new List<CanvasGroup>();
-    static Dictionary<UIKey, CanvasGroup> _prefabs;
+    public List<ICanvasObject> _CurrentUIObjects = new List<ICanvasObject>();
+    static Dictionary<UIKey, ICanvasObject> _prefabs;
     private void Awake()
     {
         if (Instance == null)
@@ -31,83 +31,53 @@ public class CanvasEngine : MonoBehaviour
     }
     void LoadPrefabBank()
     {
-        _prefabs = new Dictionary<UIKey, CanvasGroup>();
-        CanvasGroup[] prefabs = Resources.LoadAll<CanvasGroup>(ResourcePath);
-        foreach (CanvasGroup prefab in prefabs)
+        _prefabs = new Dictionary<UIKey, ICanvasObject>();
+        ICanvasObject[] prefabs = Resources.LoadAll<ICanvasObject>(ResourcePath);
+        foreach (ICanvasObject prefab in prefabs)
             if (Enum.TryParse(prefab.name, out UIKey key))
                 _prefabs.Add(key, prefab);
             else
                 throw new Exception($"{prefab.name} does not match any {nameof(UIKey)}");
     }
-    public CanvasGroup Open(UIKey key, float fadeTime, Action ondone = null)
+    public ICanvasObject OpenUnlisted(UIKey key, Action ondone = null)
     {
-        if (_prefabs.TryGetValue(key, out CanvasGroup prefab))
+        if (_prefabs.TryGetValue(key, out ICanvasObject prefab))
         {
-            CanvasGroup newObj = Instantiate(prefab, transform);
-            StartCoroutine(Fade(newObj, true, fadeTime, ondone));
+            ICanvasObject newObj = Instantiate(prefab, transform);
+            newObj.OnOpen(ondone);
             return newObj;
         }
         else
             throw new Exception(key + "not found");
     }
-    public CanvasGroup OpenInList(UIKey key, float fadeTime, Action ondone = null)
+    public ICanvasObject Open(UIKey key, Action ondone = null)
     {
-        CanvasGroup newObj = Open(key, fadeTime, ondone);
+        ICanvasObject newObj = OpenUnlisted(key, ondone);
         _CurrentUIObjects.Add(newObj);
         return newObj;
     }
-    void Close(CanvasGroup objectToRemove, float fadeTime, Action ondone = null)
-    {
-        StartCoroutine(Fade(objectToRemove, false, fadeTime, ondone));
-    }
-    public void Close(CanvasGroup objectToRemove, float fadeTime)
+    public void Close(ICanvasObject objectToRemove, Action ondone = null)
     {
         if (_CurrentUIObjects.Contains(objectToRemove))
             _CurrentUIObjects.Remove(objectToRemove);
-        Close(objectToRemove, fadeTime, () => Destroy(objectToRemove.gameObject));
+        objectToRemove.Close(ondone);
     }
-    public void CloseAllListed(float fadeTime)
+    public void CloseAllListed()
     {
-        CanvasGroup[] objectsToClose = _CurrentUIObjects.ToArray();
-        foreach(CanvasGroup cg in objectsToClose)
-            Close(cg, fadeTime, () => Destroy(cg.gameObject));
+        ICanvasObject[] objectsToClose = _CurrentUIObjects.ToArray();
+        foreach(ICanvasObject cg in objectsToClose)
+            Close(cg, null);
         _CurrentUIObjects.Clear();
     }
     public void DestroyAll()//hope you wont need to use this but here it is
     {
-        CloseAllListed(0f);
+        CloseAllListed();
         bool stillHasChildren = transform.childCount > 0;
         while (stillHasChildren)
         {
             Transform child = transform.GetChild(0);
             Destroy(child);
         }
-    }
-    public static IEnumerator Fade(CanvasGroup cg, bool fadeIn, float fadeTime,  Action ondone)
-    {
-        float t = 0;
-        float targetValue;
-        if (fadeIn)
-        {
-            targetValue = 1.0f;
-            cg.alpha = 0;
-        }
-        else
-        {
-            targetValue = 0.0f;
-            t = 1 - cg.alpha;
-        }
-        for (float alpha = cg.alpha; t < 1.0f; t += Time.deltaTime / fadeTime)
-        {
-            if (cg != null)
-            {
-                cg.alpha = Mathf.Lerp(alpha, targetValue, t);
-                yield return new WaitForEndOfFrame();
-            }
-            else
-                break;
-        }
-        ondone?.Invoke();
     }
 }
 public enum UIKey
