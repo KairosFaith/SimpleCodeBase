@@ -62,11 +62,11 @@ public class CanvasEngine : MonoBehaviour
             _CurrentUIObjects.Remove(objectToRemove);
         objectToRemove.Close(ondone);
     }
-    public void CloseAllListed()
+    public void CloseAllListed(Action ondone = null)
     {
         ICanvasObject[] objectsToClose = _CurrentUIObjects.ToArray();
         foreach(ICanvasObject cg in objectsToClose)
-            Close(cg, null);
+            Close(cg, ondone);
         _CurrentUIObjects.Clear();
     }
     public void DestroyAll()//hope you wont need to use this but here it is

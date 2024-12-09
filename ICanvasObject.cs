@@ -4,7 +4,10 @@ public abstract class ICanvasObject
     : MonoBehaviour
 {
     public UIKey Key { get; }
-    public abstract void OnOpen(Action ondone = null);
+    public virtual void OnOpen(Action ondone = null)
+    {
+        ondone?.Invoke();
+    }
     public virtual void Close(Action ondone = null)
     {
         Destroy(gameObject);
