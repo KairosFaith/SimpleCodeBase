@@ -13,12 +13,11 @@ public class CameraManager : MonoBehaviour
            Instance = null;
     }
     ICameraMount CurrentMount;
-    public Transform Subject;
-    public float LerpSpeed;
+    Transform _Subject;
     public LayerMask SubjectLayer;
     public void SetSubject(Transform subject)
     {
-        Subject = subject;
+        _Subject = subject;
     }
     public void ActivateMount(ICameraMount mount)
     {
@@ -27,9 +26,13 @@ public class CameraManager : MonoBehaviour
     }
     private void Update()
     {
-        if (CurrentMount == null || Subject == null)
+        if (CurrentMount == null || _Subject == null)
             return;
-        Vector3 targetPos = CurrentMount.CalculateCameraPosition(Subject.position);
-        transform.position = Vector3.Lerp(transform.position, targetPos, Time.deltaTime * LerpSpeed);
+        transform.position = CurrentMount.CalculateCameraPosition(transform, _Subject.position, out Quaternion rotation);
+        transform.rotation = rotation;
     }
+}
+public abstract class ICameraMount : MonoBehaviour
+{
+    public abstract Vector3 CalculateCameraPosition(Transform cameraTransform, Vector3 subjectPostion, out Quaternion outRotation);
 }
