@@ -24,7 +24,7 @@ public class CameraManager : MonoBehaviour
         CurrentMount = mount;
         //onActivate?
     }
-    private void Update()
+    private void LateUpdate()
     {
         if (CurrentMount == null || _Subject == null)
             return;
