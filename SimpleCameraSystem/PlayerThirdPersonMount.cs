@@ -21,8 +21,11 @@ public class PlayerThirdPersonMount : ICameraMount
     {
         Vector3 look = new Vector3(-input.y, input.x, 0);
         Vector3 currentRotation = transform.rotation.eulerAngles;
-        Vector3 targetRotation = currentRotation + look * rotationSpeed * Time.deltaTime;
+        Vector3 targetRotation = currentRotation + rotationSpeed * Time.deltaTime * look;
         transform.rotation = Quaternion.Euler(targetRotation);
-        //transform.Rotate(look * rotationSpeed * Time.deltaTime);
+    }
+    public override void OnActivate()
+    {
+        //do something when activated
     }
 }

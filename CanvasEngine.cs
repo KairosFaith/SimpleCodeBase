@@ -8,7 +8,7 @@ public class CanvasEngine : MonoBehaviour
     const string ResourcePath = "ui";
     public static CanvasEngine Instance { get; private set; }
     public List<ICanvasObject> _CurrentUIObjects = new List<ICanvasObject>();
-    static Dictionary<UIKey, ICanvasObject> _prefabs;
+    static Dictionary<UIType, ICanvasObject> _prefabs;
     private void Awake()
     {
         if (Instance == null)
@@ -31,15 +31,12 @@ public class CanvasEngine : MonoBehaviour
     }
     void LoadPrefabBank()
     {
-        _prefabs = new Dictionary<UIKey, ICanvasObject>();
+        _prefabs = new Dictionary<UIType, ICanvasObject>();
         ICanvasObject[] prefabs = Resources.LoadAll<ICanvasObject>(ResourcePath);
         foreach (ICanvasObject prefab in prefabs)
-            if (Enum.TryParse(prefab.name, out UIKey key))
-                _prefabs.Add(key, prefab);
-            else
-                throw new Exception($"{prefab.name} does not match any {nameof(UIKey)}");
+                _prefabs.Add(prefab.Type, prefab);
     }
-    public ICanvasObject OpenUnlisted(UIKey key, Action ondone = null)
+    public ICanvasObject OpenUnlisted(UIType key, Action ondone = null)
     {
         if (_prefabs.TryGetValue(key, out ICanvasObject prefab))
         {
@@ -50,7 +47,7 @@ public class CanvasEngine : MonoBehaviour
         else
             throw new Exception(key + "not found");
     }
-    public ICanvasObject Open(UIKey key, Action ondone = null)
+    public ICanvasObject Open(UIType key, Action ondone = null)
     {
         ICanvasObject newObj = OpenUnlisted(key, ondone);
         _CurrentUIObjects.Add(newObj);
@@ -80,9 +77,13 @@ public class CanvasEngine : MonoBehaviour
         }
     }
 }
-public enum UIKey
+public enum UIType
 {
-    StartMenu,
-    Instructions,
-    Timer,
+    MainMenu,
+    HUD,
+    PauseMenu,
+    GameOver,
+    LevelComplete,
+    Settings,
+    Credits,
 }

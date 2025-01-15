@@ -22,7 +22,7 @@ public class CameraManager : MonoBehaviour
     public void ActivateMount(ICameraMount mount)
     {
         CurrentMount = mount;
-        //onActivate?
+        CurrentMount.OnActivate();
     }
     private void LateUpdate()
     {
@@ -34,5 +34,6 @@ public class CameraManager : MonoBehaviour
 }
 public abstract class ICameraMount : MonoBehaviour
 {
+    public abstract void OnActivate();
     public abstract Vector3 CalculateCameraPosition(Transform cameraTransform, Vector3 subjectPostion, out Quaternion outRotation);
 }

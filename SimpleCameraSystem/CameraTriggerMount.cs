@@ -22,4 +22,8 @@ public class CameraTriggerMount : ICameraMount
         outRotation = Quaternion.Lerp(cameraTransform.rotation, MountPoint.rotation, lerpValue);
         return Vector3.Lerp(cameraTransform.position, targetPos, lerpValue);
     }
+    public override void OnActivate()
+    {
+        //do something when activated
+    }
 }
