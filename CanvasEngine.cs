@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 [RequireComponent(typeof(Canvas))]//Place this script on the canvas object
@@ -79,11 +78,5 @@ public class CanvasEngine : MonoBehaviour
 }
 public enum UIType
 {
-    MainMenu,
-    HUD,
-    PauseMenu,
-    GameOver,
-    LevelComplete,
-    Settings,
-    Credits,
+    //Project Dependent!
 }
