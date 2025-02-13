@@ -14,10 +14,7 @@ public class EclipseAudioEngine : MonoBehaviour
             DontDestroyOnLoad(gameObject);
         }
         else
-        {
-            Debug.LogWarning(Instance.gameObject.name + nameof(EclipseAudioEngine) + " Already exists");
             Destroy(this);
-        }
     }
     private void OnDestroy()
     {
@@ -42,15 +39,21 @@ public class EclipseAudioEngine : MonoBehaviour
         else
             throw new Exception(SoundID + " not found");
     }
+    public AudioClip FetchSfx(string SoundID, out float gain, out AudioMixerGroup channel)
+    {
+        SfxMag mag = FetchSfx(SoundID);
+        channel = mag.Channel;
+        return mag.Randomise(out gain);
+    }
     public AudioSource PlayClipAtPoint(string SoundId, Vector3 position)
     {
-        SfxMag mag = FetchSfx(SoundId);
-        AudioClip clip = mag.Randomise(out float gain);
         GameObject go = new GameObject(SoundId);
         go.transform.position = position;
         AudioSource source = go.AddComponent<AudioSource>();
         source.spatialBlend = 1;
-        source.outputAudioMixerGroup = mag.Channel;
+
+        AudioClip clip = FetchSfx(SoundId, out float gain, out AudioMixerGroup channel);
+        source.outputAudioMixerGroup = channel;
         source.PlayOneShot(clip, gain);
         Destroy(go, clip.length);
         return source;
