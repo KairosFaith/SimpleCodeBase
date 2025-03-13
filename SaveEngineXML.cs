@@ -4,21 +4,19 @@ using System;
 using UnityEngine;
 public static class SaveEngineXML
 {
-    static string GetPath(Type dataType)
+    static string GetPathFromClassName(Type dataType)
     {
-        string className = dataType.Name;
-        return "/" + $"{className}.xml";
+        return $"/{dataType.Name}.xml";
     }
     public static void SaveXML<T>(T dataToSave) where T : class
     {
-        string path = GetPath(typeof(T));
+        string path = GetPathFromClassName(typeof(T));
         SaveXML(dataToSave, path);
     }
     public static void SaveXML<T>(T dataToSave, string streamPath)
     {
-        Type dataType = typeof(T);
         string path = Application.streamingAssetsPath + streamPath;
-        XmlSerializer serializer = new XmlSerializer(dataType);
+        XmlSerializer serializer = new XmlSerializer(typeof(T));
         using (FileStream stream = new FileStream(path, FileMode.Create))
         {
             serializer.Serialize(stream, dataToSave);
@@ -26,7 +24,7 @@ public static class SaveEngineXML
     }
     public static bool TryLoadXML<T>(out T dataToLoad) where T : class
     {
-        string path = GetPath(typeof(T));
+        string path = GetPathFromClassName(typeof(T));
         return TryLoadXML<T>(path, out dataToLoad);
     }
     public static bool TryLoadXML<T>(string streamPath, out T dataToLoad) where T : class

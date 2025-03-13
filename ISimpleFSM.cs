@@ -23,7 +23,7 @@ public abstract class ISimpleFSM : MonoBehaviour
         else
             throw new Exception(stateToSet + " state class not found!");
     }
-    public void SendControlMessage(MessageType messageType, params object[] args)
+    public virtual void SendControlMessage(MessageType messageType, params object[] args)
     {
         CurrentState.GetControlMessage(messageType, args);
     }
