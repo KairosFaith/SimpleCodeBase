@@ -3,6 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 public abstract class ISimpleFSM : MonoBehaviour
 {
+    protected enum StateType
+    {
+        //Project Specific
+    }
+    public enum MessageType
+    {
+        //Project Specific
+    }
     Dictionary<StateType, ISimpleState> _states = new Dictionary<StateType, ISimpleState>();
     protected ISimpleState CurrentState { get; private set; }
     StateType _CurrentStateKey;
@@ -10,7 +18,7 @@ public abstract class ISimpleFSM : MonoBehaviour
     {
         _states.Add(stateObj.ClassStateType, stateObj);
     }
-    public void SetState(StateType stateToSet, params object[] args)
+    protected void SetState(StateType stateToSet, params object[] args)
     {
         if (_states.TryGetValue(stateToSet, out ISimpleState stateObj))
         {
@@ -27,22 +35,14 @@ public abstract class ISimpleFSM : MonoBehaviour
     {
         CurrentState.GetControlMessage(messageType, args);
     }
-}
-public enum StateType
-{
-
-}
-public abstract class ISimpleState
-{
-    public abstract StateType ClassStateType { get; }
-    public ISimpleState(ISimpleFSM host) { }
-    public abstract void OnStateEnter(StateType previousState, params object[] args);
-    public abstract void OnStateExit(StateType nextState, params object[] args);
-    public abstract void OnStateUpdate();
-    public abstract void OnStateFixedUpdate();
-    public abstract void GetControlMessage(MessageType messageType, params object[] args);
-}
-public enum MessageType
-{
-
+    protected abstract class ISimpleState
+    {
+        protected ISimpleState(ISimpleFSM host) { }
+        public abstract StateType ClassStateType { get; }
+        public abstract void OnStateEnter(StateType previousState, params object[] args);
+        public abstract void OnStateExit(StateType nextState, params object[] args);
+        public abstract void OnStateUpdate();
+        public abstract void OnStateFixedUpdate();
+        public abstract void GetControlMessage(MessageType messageType, params object[] args);
+    }
 }
