@@ -1,27 +1,23 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-[RequireComponent(typeof(Canvas))]//Place this script on the canvas object
+[RequireComponent(typeof(Canvas))]
 public class CanvasEngine : MonoBehaviour
 {
-    const string ResourcePath = "ui";
-    public static CanvasEngine Instance { get; private set; }
+    const string ResourcePath = "UI";
+    Dictionary<UIType, ICanvasObject> _prefabs;
     public List<ICanvasObject> _CurrentUIObjects = new List<ICanvasObject>();
-    static Dictionary<UIType, ICanvasObject> _prefabs;
+    public static CanvasEngine Instance { get; private set; }
     private void Awake()
     {
         if (Instance == null)
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
+            LoadPrefabBank();
         }
         else
-        {
-            Debug.LogWarning(Instance.gameObject.name + nameof(CanvasEngine) + " Already exists");
-            Destroy(this);
-        }
-        if(_prefabs==null)
-            LoadPrefabBank();
+            Destroy(gameObject);
     }
     private void OnDestroy()
     {
