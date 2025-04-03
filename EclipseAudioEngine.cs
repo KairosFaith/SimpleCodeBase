@@ -10,11 +10,12 @@ public class EclipseAudioEngine : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-            LoadSoundBank();
+            foreach (SfxMag sfx in AudioMags)
+                _SoundBank.Add(sfx.Tag, sfx);
             DontDestroyOnLoad(gameObject);
         }
         else
-            Destroy(this);
+            Destroy(gameObject);
     }
     private void OnDestroy()
     {
@@ -23,15 +24,6 @@ public class EclipseAudioEngine : MonoBehaviour
     }
     public SfxMag[] AudioMags;
     Dictionary<string, SfxMag> _SoundBank = new Dictionary<string, SfxMag>();
-    void LoadSoundBank()
-    {
-        foreach (var sfx in AudioMags)
-        {
-            var tag = sfx.Tag;
-            if (!_SoundBank.ContainsKey(tag))
-                _SoundBank.Add(tag, sfx);
-        }
-    }
     public SfxMag FetchSfx(string SoundID)
     {
         if (_SoundBank.TryGetValue(SoundID, out SfxMag data))
@@ -39,23 +31,27 @@ public class EclipseAudioEngine : MonoBehaviour
         else
             throw new Exception(SoundID + " not found");
     }
-    public AudioClip FetchSfx(string SoundID, out float gain, out AudioMixerGroup channel)
+    public AudioClip FetchSfx(string SoundID, out AudioMixerGroup channel)
     {
         SfxMag mag = FetchSfx(SoundID);
         channel = mag.Channel;
-        return mag.Randomise(out gain);
+        return mag.FetchRandomClip();
     }
-    public AudioSource PlayClipAtPoint(string SoundId, Vector3 position)
+    AudioSource CreateAudioSource(string SoundId, AudioMixerGroup channel, Vector3 position)
     {
         GameObject go = new GameObject(SoundId);
         go.transform.position = position;
         AudioSource source = go.AddComponent<AudioSource>();
-        source.spatialBlend = 1;
-
-        AudioClip clip = FetchSfx(SoundId, out float gain, out AudioMixerGroup channel);
         source.outputAudioMixerGroup = channel;
-        source.PlayOneShot(clip, gain);
-        Destroy(go, clip.length);
+        source.spatialBlend = 1;
+        return source;
+    }
+    public AudioSource PlayClipAtPoint(string SoundId, Vector3 position, float volume = 1f)
+    {
+        AudioClip clip = FetchSfx(SoundId, out AudioMixerGroup channel);
+        AudioSource source = CreateAudioSource(SoundId, channel, position);
+        source.PlayOneShot(clip, volume);
+        Destroy(source.gameObject, clip.length);
         return source;
     }
 }
@@ -64,14 +60,11 @@ public class SfxMag
 {
     public string Tag;
     public AudioMixerGroup Channel;
-    [Range(0, 1)]
-    public float MinRandomVolume = 1;
     public AudioClip[] Clips;
-    public AudioClip Randomise(out float gain)
+    public AudioClip FetchRandomClip()
     {
         int key = UnityEngine.Random.Range(0, Clips.Length);
         AudioClip c = Clips[key];
-        gain = UnityEngine.Random.Range(MinRandomVolume, 1);
         return c;
     }
 }
