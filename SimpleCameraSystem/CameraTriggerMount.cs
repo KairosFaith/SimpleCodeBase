@@ -12,18 +12,14 @@ public class CameraTriggerMount : ICameraMount
     {
         CameraManager instance = CameraManager.Instance;
         if (instance.SubjectLayer.ContainsLayer(other.gameObject))
-            instance.ActivateMount(this);
+            instance.CurrentMount = this;
     }
-    public override Vector3 CalculateCameraPosition(Transform cameraTransform, Vector3 subjectPostion, out Quaternion outRotation)
+    public override Vector3 UpdateCameraPosition(Transform cameraTransform, Vector3 subjectPostion, out Quaternion outRotation)
     {
         //move camera based on delta position, from mount point to subject
         Vector3 targetPos = subjectPostion + _Offset;
         float lerpValue = Time.deltaTime * LerpSpeed;
         outRotation = Quaternion.Lerp(cameraTransform.rotation, MountPoint.rotation, lerpValue);
         return Vector3.Lerp(cameraTransform.position, targetPos, lerpValue);
-    }
-    public override void OnActivate()
-    {
-        //do something when activated
     }
 }

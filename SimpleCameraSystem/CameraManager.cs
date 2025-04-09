@@ -5,35 +5,26 @@ public class CameraManager : MonoBehaviour
     public static CameraManager Instance;
     private void Awake()
     {
-        Instance = this;
+        if (Instance == null)
+            Instance =  this;
+        else
+            Destroy(this);
     }
     private void OnDestroy()
     {
-        if(Instance==this)
-           Instance = null;
+        if(Instance == this)
+           Instance =  null;
     }
-    ICameraMount CurrentMount;
-    Transform _Subject;
+    public ICameraMount CurrentMount;
+    public Transform Subject;
     public LayerMask SubjectLayer;
-    public void SetSubject(Transform subject)
-    {
-        _Subject = subject;
-    }
-    public void ActivateMount(ICameraMount mount)
-    {
-        CurrentMount = mount;
-        CurrentMount.OnActivate();
-    }
     private void LateUpdate()
     {
-        if (CurrentMount == null || _Subject == null)
-            return;
-        transform.position = CurrentMount.CalculateCameraPosition(transform, _Subject.position, out Quaternion rotation);
+        transform.position = CurrentMount.UpdateCameraPosition(transform, Subject.position, out Quaternion rotation);
         transform.rotation = rotation;
     }
 }
 public abstract class ICameraMount : MonoBehaviour
 {
-    public abstract void OnActivate();
-    public abstract Vector3 CalculateCameraPosition(Transform cameraTransform, Vector3 subjectPostion, out Quaternion outRotation);
+    public abstract Vector3 UpdateCameraPosition(Transform cameraTransform, Vector3 subjectPostion, out Quaternion outRotation);
 }
