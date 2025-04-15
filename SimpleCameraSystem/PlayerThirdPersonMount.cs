@@ -1,21 +1,17 @@
 using UnityEngine;
 public class PlayerThirdPersonMount : ICameraMount
 {
-    public Transform MountPoint;
+    public Transform CameraPoint;
     public Transform Subject;
-    public float rotationSpeed = 5;
-    private void Start()
-    {
-        CameraManager.Instance.ActivateMount(this);
-    }
+    public float rotationSpeed = 5, LerpSpeed, SlerpSpeed;
     private void Update()
     {
         transform.position = Subject.position;
     }
-    public override Vector3 CalculateCameraPosition(Transform cameraTransform, Vector3 subjectPostion, out Quaternion outRotation)
+    public override Vector3 UpdateCameraPosition(Transform cameraTransform, Vector3 subjectPostion, out Quaternion outRotation)
     {
-        outRotation = MountPoint.rotation;
-        return MountPoint.position;
+        outRotation = Quaternion.Slerp(cameraTransform.rotation, CameraPoint.rotation, SlerpSpeed*Time.deltaTime);
+        return Vector3.Lerp(cameraTransform.position,CameraPoint.position,LerpSpeed*Time.deltaTime);
     }
     public void Rotate(Vector2 input)
     {
@@ -23,9 +19,5 @@ public class PlayerThirdPersonMount : ICameraMount
         Vector3 currentRotation = transform.rotation.eulerAngles;
         Vector3 targetRotation = currentRotation + rotationSpeed * Time.deltaTime * look;
         transform.rotation = Quaternion.Euler(targetRotation);
-    }
-    public override void OnActivate()
-    {
-        //do something when activated
     }
 }
