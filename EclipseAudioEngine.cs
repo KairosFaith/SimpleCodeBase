@@ -1,11 +1,19 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Audio;
+using UnityEngine.Pool;
+///<summary>Using Pooling for Audio Sources, Do not destroy, Only Release</summary>
 public class EclipseAudioEngine : MonoBehaviour
 {
     public static EclipseAudioEngine Instance { get; private set; }
-    private void Awake()
+    LinkedPool<AudioSource> _Pool;
+    const int MaxRealVoices = 32;//change in Project Settings > Audio > MaxRealVoices before changing here
+    public SfxMag[] AudioMags = new SfxMag[1];
+    Dictionary<string, SfxMag> _SoundBank = new Dictionary<string, SfxMag>();
+    //public int ActiveCount, InactiveCount;//for fine tuning MaxRealVoices
+    void Awake()
     {
         if (Instance == null)
         {
@@ -13,6 +21,7 @@ public class EclipseAudioEngine : MonoBehaviour
             foreach (SfxMag sfx in AudioMags)
                 _SoundBank.Add(sfx.Tag, sfx);
             DontDestroyOnLoad(gameObject);
+            _Pool = new LinkedPool<AudioSource>(CreateAudioSource, OnGet, OnRelease, null, true, MaxRealVoices);
         }
         else
             Destroy(gameObject);
@@ -22,8 +31,37 @@ public class EclipseAudioEngine : MonoBehaviour
         if (Instance == this)
             Instance = null;
     }
-    public SfxMag[] AudioMags;
-    Dictionary<string, SfxMag> _SoundBank = new Dictionary<string, SfxMag>();
+    AudioSource CreateAudioSource()
+    {
+        GameObject go = new GameObject();
+        return go.AddComponent<AudioSource>();
+    }
+    void OnGet(AudioSource source)
+    {
+        source.gameObject.SetActive(true);
+        source.transform.SetParent(null);
+        source.name = "ActiveAudioSource";
+        //InactiveCount = transform.childCount;
+        //ActiveCount++;
+    }
+    void OnRelease(AudioSource source)
+    {
+        source.Stop();
+        source.name = "InactiveAudioSource";
+        source.transform.SetParent(transform);
+        source.gameObject.SetActive(false);
+        //InactiveCount = transform.childCount;
+        //ActiveCount--;
+    }
+    ///<summary>Release all AudioSources when changing scene</summary>
+    public void ReleaseAll() => _Pool.Clear();
+    public void ReleaseSource(AudioSource source) => _Pool.Release(source);
+    IEnumerator _ReleaseAfterDuration(AudioSource source, float duration)
+    {
+        yield return new WaitForSeconds(duration);
+        ReleaseSource(source);
+    }
+    public void ReleaseSource(AudioSource source, float duration) => StartCoroutine(_ReleaseAfterDuration(source, duration));
     public SfxMag FetchSfx(string SoundID)
     {
         if (_SoundBank.TryGetValue(SoundID, out SfxMag data))
@@ -31,27 +69,24 @@ public class EclipseAudioEngine : MonoBehaviour
         else
             throw new Exception(SoundID + " not found");
     }
-    public AudioClip FetchSfx(string SoundID, out AudioMixerGroup channel)
+    public AudioSource GetSource(string SoundId, Vector3 position, float spatialBlend = 1, bool loop = false)
     {
-        SfxMag mag = FetchSfx(SoundID);
-        channel = mag.Channel;
-        return mag.FetchRandomClip();
-    }
-    AudioSource CreateAudioSource(string SoundId, AudioMixerGroup channel, Vector3 position)
-    {
-        GameObject go = new GameObject(SoundId);
-        go.transform.position = position;
-        AudioSource source = go.AddComponent<AudioSource>();
-        source.outputAudioMixerGroup = channel;
-        source.spatialBlend = 1;
+        SfxMag mag = FetchSfx(SoundId);
+        AudioSource source = _Pool.Get();
+        source.outputAudioMixerGroup = mag.Channel;
+        source.clip = mag.FetchRandomClip();
+        source.name = SoundId;
+        source.transform.position = position;
+        source.spatialBlend = spatialBlend;
+        source.loop = loop;
         return source;
     }
-    public AudioSource PlayClipAtPoint(string SoundId, Vector3 position, float volume = 1f)
+    public AudioSource PlayClipAtPoint(string SoundId, Vector3 position, float volume = 1, float spatialBlend = 1)
     {
-        AudioClip clip = FetchSfx(SoundId, out AudioMixerGroup channel);
-        AudioSource source = CreateAudioSource(SoundId, channel, position);
+        AudioSource source = GetSource(SoundId, position, spatialBlend);
+        AudioClip clip = source.clip;
         source.PlayOneShot(clip, volume);
-        Destroy(source.gameObject, clip.length);
+        ReleaseSource(source, clip.length);
         return source;
     }
 }
@@ -60,7 +95,7 @@ public class SfxMag
 {
     public string Tag;
     public AudioMixerGroup Channel;
-    public AudioClip[] Clips;
+    public AudioClip[] Clips = new AudioClip[1];
     public AudioClip FetchRandomClip()
     {
         int key = UnityEngine.Random.Range(0, Clips.Length);
