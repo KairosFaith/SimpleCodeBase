@@ -40,7 +40,6 @@ public class EclipseAudioEngine : MonoBehaviour
     {
         source.gameObject.SetActive(true);
         source.transform.SetParent(null);
-        source.name = "ActiveAudioSource";
         //InactiveCount = transform.childCount;
         //ActiveCount++;
     }
