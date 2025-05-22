@@ -52,8 +52,8 @@ public class EclipseAudioEngine : MonoBehaviour
         //InactiveCount = transform.childCount;
         //ActiveCount--;
     }
-    ///<summary>Release all AudioSources when changing scene</summary>
-    public void ReleaseAll() => _Pool.Clear();
+    ///<summary>Clear all AudioSources when changing scene</summary>
+    public void ClearPool() => _Pool.Clear();
     public void ReleaseSource(AudioSource source) => _Pool.Release(source);
     IEnumerator _ReleaseAfterDuration(AudioSource source, float duration)
     {

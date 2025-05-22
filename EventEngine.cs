@@ -28,5 +28,5 @@ public static class EventEngine
 }
 public enum EventType
 {
-
+    RegisterTile,
 }
