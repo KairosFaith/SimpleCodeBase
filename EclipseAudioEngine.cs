@@ -26,7 +26,7 @@ public class EclipseAudioEngine : MonoBehaviour
         else
             Destroy(gameObject);
     }
-    private void OnDestroy()
+    void OnDestroy()
     {
         if (Instance == this)
             Instance = null;
@@ -52,10 +52,7 @@ public class EclipseAudioEngine : MonoBehaviour
         //InactiveCount = transform.childCount;
         //ActiveCount--;
     }
-    void ActionOnDestroy(AudioSource source)
-    {
-        Destroy(source.gameObject);
-    }
+    void ActionOnDestroy(AudioSource source) => Destroy(source.gameObject);
     ///<summary>Clear all AudioSources when changing scene</summary>
     public void ClearPool() => _Pool.Clear();
     public void ReleaseSource(AudioSource source) => _Pool.Release(source);
