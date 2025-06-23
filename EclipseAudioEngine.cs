@@ -21,7 +21,7 @@ public class EclipseAudioEngine : MonoBehaviour
             foreach (SfxMag sfx in AudioMags)
                 _SoundBank.Add(sfx.Tag, sfx);
             DontDestroyOnLoad(gameObject);
-            _Pool = new LinkedPool<AudioSource>(CreateAudioSource, OnGet, OnRelease, null, true, MaxRealVoices);
+            _Pool = new LinkedPool<AudioSource>(CreateAudioSource, ActionOnGet, ActionOnRelease, ActionOnDestroy, true, MaxRealVoices);
         }
         else
             Destroy(gameObject);
@@ -36,14 +36,14 @@ public class EclipseAudioEngine : MonoBehaviour
         GameObject go = new GameObject();
         return go.AddComponent<AudioSource>();
     }
-    void OnGet(AudioSource source)
+    void ActionOnGet(AudioSource source)
     {
         source.gameObject.SetActive(true);
         source.transform.SetParent(null);
         //InactiveCount = transform.childCount;
         //ActiveCount++;
     }
-    void OnRelease(AudioSource source)
+    void ActionOnRelease(AudioSource source)
     {
         source.Stop();
         source.name = "InactiveAudioSource";
@@ -51,6 +51,10 @@ public class EclipseAudioEngine : MonoBehaviour
         source.gameObject.SetActive(false);
         //InactiveCount = transform.childCount;
         //ActiveCount--;
+    }
+    void ActionOnDestroy(AudioSource source)
+    {
+        Destroy(source.gameObject);
     }
     ///<summary>Clear all AudioSources when changing scene</summary>
     public void ClearPool() => _Pool.Clear();
