@@ -8,7 +8,7 @@ using UnityEngine.Pool;
 public class EclipseAudioEngine : MonoBehaviour
 {
     public static EclipseAudioEngine Instance { get; private set; }
-    LinkedPool<AudioSource> _Pool;
+    IObjectPool<AudioSource> _Pool;
     const int MaxRealVoices = 32;//change in Project Settings > Audio > MaxRealVoices before changing here
     public SfxMag[] AudioMags = new SfxMag[1];
     Dictionary<string, SfxMag> _SoundBank = new Dictionary<string, SfxMag>();
@@ -21,7 +21,7 @@ public class EclipseAudioEngine : MonoBehaviour
             foreach (SfxMag sfx in AudioMags)
                 _SoundBank.Add(sfx.Tag, sfx);
             DontDestroyOnLoad(gameObject);
-            _Pool = new LinkedPool<AudioSource>(CreateAudioSource, ActionOnGet, ActionOnRelease, ActionOnDestroy, true, MaxRealVoices);
+            _Pool = new ObjectPool<AudioSource>(CreateAudioSource, ActionOnGet, ActionOnRelease, ActionOnDestroy, true, MaxRealVoices);
         }
         else
             Destroy(gameObject);
