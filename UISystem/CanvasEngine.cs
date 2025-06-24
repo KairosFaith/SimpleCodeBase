@@ -5,8 +5,8 @@ using UnityEngine;
 public class CanvasEngine : MonoBehaviour
 {
     const string ResourcePath = "UI";
-    Dictionary<UIType, ICanvasObject> _prefabs;
-    public List<ICanvasObject> _CurrentUIObjects = new List<ICanvasObject>();
+    Dictionary<UIType, CanvasObject> _prefabs;
+    public List<CanvasObject> _CurrentUIObjects = new List<CanvasObject>();
     public static CanvasEngine Instance { get; private set; }
     private void Awake()
     {
@@ -14,7 +14,10 @@ public class CanvasEngine : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
-            LoadPrefabBank();
+            _prefabs = new Dictionary<UIType, CanvasObject>();
+            CanvasObject[] prefabs = Resources.LoadAll<CanvasObject>(ResourcePath);
+            foreach (CanvasObject prefab in prefabs)
+                _prefabs.Add(prefab.Type, prefab);
         }
         else
             Destroy(gameObject);
@@ -24,52 +27,35 @@ public class CanvasEngine : MonoBehaviour
         if (Instance == this)
             Instance = null;
     }
-    void LoadPrefabBank()
+    public CanvasObject OpenUnlisted(UIType key, Action ondone = null)
     {
-        _prefabs = new Dictionary<UIType, ICanvasObject>();
-        ICanvasObject[] prefabs = Resources.LoadAll<ICanvasObject>(ResourcePath);
-        foreach (ICanvasObject prefab in prefabs)
-                _prefabs.Add(prefab.Type, prefab);
-    }
-    public ICanvasObject OpenUnlisted(UIType key, Action ondone = null)
-    {
-        if (_prefabs.TryGetValue(key, out ICanvasObject prefab))
+        if (_prefabs.TryGetValue(key, out CanvasObject prefab))
         {
-            ICanvasObject newObj = Instantiate(prefab, transform);
+            CanvasObject newObj = Instantiate(prefab, transform);
             newObj.OnOpen(ondone);
             return newObj;
         }
         else
             throw new Exception(key + "not found");
     }
-    public ICanvasObject Open(UIType key, Action ondone = null)
+    public CanvasObject Open(UIType key, Action ondone = null)
     {
-        ICanvasObject newObj = OpenUnlisted(key, ondone);
+        CanvasObject newObj = OpenUnlisted(key, ondone);
         _CurrentUIObjects.Add(newObj);
         return newObj;
     }
-    public void Close(ICanvasObject objectToRemove, Action ondone = null)
+    public void Close(CanvasObject objectToRemove, Action ondone = null)
     {
-        if (_CurrentUIObjects.Contains(objectToRemove))
+        //if (_CurrentUIObjects.Contains(objectToRemove))
             _CurrentUIObjects.Remove(objectToRemove);
         objectToRemove.Close(ondone);
     }
     public void CloseAllListed(Action ondone = null)
     {
-        ICanvasObject[] objectsToClose = _CurrentUIObjects.ToArray();
-        foreach(ICanvasObject cg in objectsToClose)
+        CanvasObject[] objectsToClose = _CurrentUIObjects.ToArray();
+        foreach(CanvasObject cg in objectsToClose)
             Close(cg, ondone);
         _CurrentUIObjects.Clear();
-    }
-    public void DestroyAll()//hope you wont need to use this but here it is
-    {
-        CloseAllListed();
-        bool stillHasChildren = transform.childCount > 0;
-        while (stillHasChildren)
-        {
-            Transform child = transform.GetChild(0);
-            Destroy(child);
-        }
     }
 }
 public enum UIType

@@ -1,8 +1,8 @@
 using System;
 using UnityEngine;
-public abstract class ICanvasObject : MonoBehaviour
+public class CanvasObject : MonoBehaviour
 {
-    public UIType Type { get;}
+    public virtual UIType Type => (UIType)Enum.Parse(typeof(UIType), name);
     public virtual void OnOpen(Action ondone = null)
     {
         ondone?.Invoke();//exclude?
