@@ -1,6 +1,6 @@
 using System.Collections.Generic;
-public delegate void GameEvent(object sender, params object[] args);
-public delegate void CommonGameEvent(EventType type, object sender, params object[] args);
+public delegate void GameEvent(object sender, object[] args);
+public delegate void CommonGameEvent(EventType type, object sender, object[] args);
 public enum EventType
 {
     RegisterTile,
