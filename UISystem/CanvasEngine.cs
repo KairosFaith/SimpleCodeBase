@@ -1,6 +1,10 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+public enum UIType
+{
+    //Project Dependent!
+}
 [RequireComponent(typeof(Canvas))]
 public class CanvasEngine : MonoBehaviour
 {
@@ -57,8 +61,4 @@ public class CanvasEngine : MonoBehaviour
             Close(cg, ondone);
         _CurrentUIObjects.Clear();
     }
-}
-public enum UIType
-{
-    //Project Dependent!
 }

@@ -1,6 +1,10 @@
 using System.Collections.Generic;
 public delegate void GameEvent(object sender, params object[] args);
 public delegate void CommonGameEvent(EventType type, object sender, params object[] args);
+public enum EventType
+{
+    RegisterTile,
+}
 public static class EventEngine
 {
     static Dictionary<EventType, GameEvent> _Events = new Dictionary<EventType, GameEvent>();
@@ -22,11 +26,7 @@ public static class EventEngine
     public static void BroadcastEvent(EventType type, object sender, params object[] args)
     {
         if (_Events.TryGetValue(type, out GameEvent gameEvent))
-            gameEvent?.Invoke(sender, args);
+            gameEvent(sender, args);
         OnBroadcastEvent?.Invoke(type, sender, args);
     }
-}
-public enum EventType
-{
-    RegisterTile,
 }
