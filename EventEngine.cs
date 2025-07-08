@@ -18,9 +18,8 @@ public static class EventEngine
     }
     public static void UnsubscribeEvent(EventType type, GameEvent toRemove)
     {
-        if (_Events.TryGetValue(type, out GameEvent existing))
-            existing -= toRemove;
-        if (existing == null)
+        GameEvent remaining = _Events[type] -= toRemove;
+        if (remaining == null)
             _Events.Remove(type);
     }
     public static void BroadcastEvent(EventType type, object sender, params object[] args)
