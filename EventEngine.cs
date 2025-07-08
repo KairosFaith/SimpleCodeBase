@@ -11,8 +11,8 @@ public static class EventEngine
     public static CommonGameEvent OnBroadcastEvent;
     public static void SubscribeEvent(EventType type, GameEvent toAdd)
     {
-        if (_Events.TryGetValue(type, out GameEvent existing))
-            existing += toAdd;
+        if (_Events.ContainsKey(type))
+            _Events[type] += toAdd;
         else
             _Events.Add(type, toAdd);
     }
