@@ -5,7 +5,7 @@ using UnityEngine;
 [RequireComponent(typeof(SpriteRenderer))]
 public class SpriteAnimationController : MonoBehaviour
 {
-    public SpriteAnimationObject[] AnimationList = new SpriteAnimationObject[0];
+    public SpriteAnimationObject[] AnimationList = new SpriteAnimationObject[1];
     SpriteRenderer Renderer;
     Dictionary<string, SpriteAnimationObject> _AnimationBank = new Dictionary<string, SpriteAnimationObject>();
     public bool IsLoop;
