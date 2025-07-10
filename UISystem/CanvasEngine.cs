@@ -10,7 +10,7 @@ public class CanvasEngine : MonoBehaviour
 {
     const string ResourcePath = "UI";
     Dictionary<UIType, CanvasObject> _prefabs;
-    public List<CanvasObject> _CurrentUIObjects = new List<CanvasObject>();
+    List<CanvasObject> _CurrentUIObjects = new List<CanvasObject>();
     public static CanvasEngine Instance { get; private set; }
     private void Awake()
     {
