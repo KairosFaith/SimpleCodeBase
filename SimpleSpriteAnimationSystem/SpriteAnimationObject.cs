@@ -6,6 +6,9 @@ public class SpriteAnimationObject : ScriptableObject
 {
     public float FrameDuration = .1f;
     public bool Loop;
+    /// <summary>
+    ///<see cref="SpriteAnimationController"> allows for null frames
+    /// </summary>
     public Sprite[] Frames = new Sprite[2];
     public List<SpriteAnimationKeyframe> Keyframes = new List<SpriteAnimationKeyframe>();
     Dictionary<int, (KeyframeType, string)> _KeyframeLookup;
@@ -18,7 +21,7 @@ public class SpriteAnimationObject : ScriptableObject
                 _KeyframeLookup[keyframe.FrameIndex] = (keyframe.Type, keyframe.Message);
         }
         else
-            throw new Exception("SpriteAnimationData already constructed. Do not construct twince");
+            throw new Exception("SpriteAnimationData already constructed. Do not construct twice");
     }
     public Sprite FetchFrame(int index, Action<KeyframeType, string> keyframeFunction)
     {
