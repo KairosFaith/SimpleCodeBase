@@ -11,7 +11,7 @@ public class CLerpData
     public float MinInputValue, MaxInputValue, MinOutputValue, MaxOutputValue;
     public float Evaluate(float input)
     {
-        float inputT = Mathf.InverseLerp(MinInputValue, MaxInputValue, input);
+        float inputT = (input - MinInputValue) / (MaxInputValue - MinInputValue);//InverseLerp
         float outputT = Curve.Evaluate(inputT);
         return Mathf.LerpUnclamped(MinOutputValue, MaxOutputValue, outputT);
     }
