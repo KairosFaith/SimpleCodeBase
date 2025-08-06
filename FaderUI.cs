@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Audio;
+[RequireComponent(typeof(Slider))]
 public class FaderUI : MonoBehaviour
 {
     public AudioMixer Mixer;
